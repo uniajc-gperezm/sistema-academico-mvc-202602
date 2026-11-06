@@ -6,8 +6,6 @@ import com.uniajc.config.ConexionPostgresDatabase;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Bienvenido al Sistema Académico!");
-
         try (Connection c = ConexionPostgresDatabase.getConnection()) {
             System.out.println("Conexión OK: " + !c.isClosed());
         } catch (Exception e) {
