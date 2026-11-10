@@ -1,0 +1,4 @@
+# Ejemplo de configuración para PostgreSQL (Neon o Local)
+URL=jdbc:postgresql://localhost:5432/academico_db
+USER=postgres
+PASSWORD=tu_password
