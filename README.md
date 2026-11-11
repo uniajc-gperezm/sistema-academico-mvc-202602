@@ -44,13 +44,33 @@ src/main/java/com/uniajc/
 ├── Main.java                 # Punto de entrada (carga la vista login)
 ├── modelo/                   # Entidades (POJOs): Estudiante, Docente, Materia,
 │                             #   Grupo, InscripcionCurso, Usuario, Rol (enum)
-├── dao/                      # Data Access Objects (consultas SQL por entidad)
+├── dao/                      # Data Access Objects + interfaces de repositorio
+│   ├── *Repositorio.java     #   Contrato de persistencia por entidad
+│   └── *Dao.java             #   Implementación JDBC (implements *Repositorio)
 ├── servicios/                # Lógica de negocio y validaciones
 ├── db/
 │   ├── DatabaseConexion.java # Conexión JDBC a PostgreSQL (lee config.properties)
 │   └── EncriptacionUtil.java  # Utilidad MD5 / SHA-256 para contraseñas
 └── vista/                    # Vistas Swing (login, principal, paneles CRUD)
+
+src/test/java/com/uniajc/
+├── dao/                      # Dobles en memoria de cada repositorio
+├── servicios/                # Pruebas unitarias de las 6 capas de servicio
+└── db/                       # Pruebas de EncriptacionUtil
 ```
+
+### Inversión de dependencias en la capa de persistencia
+
+Cada entidad define una interfaz de repositorio (`EstudianteRepositorio`,
+`DocenteRepositorio`, …) y su DAO JDBC la implementa. Los servicios dependen de la
+interfaz, no de la clase concreta:
+
+```java
+public EstudianteService(EstudianteRepositorio estudianteDao) { … }
+```
+
+Esto permite sustituir la base de datos por un doble en memoria durante las pruebas,
+sin tocar la lógica de negocio y sin necesitar conexión a Neon para ejecutar los tests.
 
 ## Configuración de la base de datos
 
@@ -125,6 +145,21 @@ java -jar target/sistema-academico-mvc.jar
 mvn test
 ```
 
+Las pruebas unitarias (JUnit 5) **no requieren conexión a la base de datos**: usan
+dobles en memoria que implementan las interfaces de repositorio.
+
+| Clase de prueba | Qué cubre |
+|-----------------|-----------|
+| `EstudianteServiceTest` | CRUD, validación de nombre/apellido/email |
+| `DocenteServiceTest` | CRUD, validación de nombre y especialidad |
+| `MateriaServiceTest` | CRUD, rango de créditos (1–10) |
+| `GrupoServiceTest` | CRUD, materia/docente obligatorios, aula y horario |
+| `InscripcionServiceTest` | CRUD, nota 0–5, estados válidos, duplicados |
+| `UsuarioServiceTest` | Autenticación, hash de contraseña, usuarios inactivos |
+| `EncriptacionUtilTest` | Hashes MD5/SHA-256 contra valores conocidos |
+
+Resultado actual: **90 pruebas, 0 fallos**.
+
 ## Credenciales de acceso
 
 - **Administrador:** `admin` / `admin123`
@@ -138,6 +173,9 @@ mvn test
 - `enum` para roles (ADMIN / USUARIO).
 - ComboBox con ID + etiqueta para las claves foráneas.
 - Funciones genéricas reutilizables (creación de botones, paneles CRUD base).
+- Inversión de dependencias: los servicios dependen de interfaces de repositorio,
+  lo que permite probarlos sin base de datos real.
+- Pruebas unitarias con JUnit 5 en las 6 entidades del dominio.
 - Generación de `.jar` ejecutable con Maven Shade.
 
 ---

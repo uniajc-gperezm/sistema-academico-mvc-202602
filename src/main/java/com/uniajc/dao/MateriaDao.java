@@ -13,10 +13,11 @@ import com.uniajc.db.DatabaseConexion;
 import com.uniajc.modelo.Materia;
 
 /** DAO de materias. Tabla real: materias (id_materia, nombre_materia, creditos). */
-public class MateriaDao {
+public class MateriaDao implements MateriaRepositorio {
 
     private static final String TABLA = "materias";
 
+    @Override
     public void guardar(Materia m) {
         String sql = "INSERT INTO " + TABLA + " (nombre_materia, creditos) VALUES (?, ?)";
         Connection conn = DatabaseConexion.getConnection();
@@ -32,6 +33,7 @@ public class MateriaDao {
         }
     }
 
+    @Override
     public List<Materia> obtenerTodos() {
         List<Materia> lista = new ArrayList<>();
         String sql = "SELECT id_materia, nombre_materia, creditos FROM " + TABLA + " ORDER BY id_materia";
@@ -45,6 +47,7 @@ public class MateriaDao {
         return lista;
     }
 
+    @Override
     public Optional<Materia> buscarPorId(int id) {
         String sql = "SELECT id_materia, nombre_materia, creditos FROM " + TABLA + " WHERE id_materia = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -59,6 +62,7 @@ public class MateriaDao {
         return Optional.empty();
     }
 
+    @Override
     public void actualizar(Materia m) {
         String sql = "UPDATE " + TABLA + " SET nombre_materia = ?, creditos = ? WHERE id_materia = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -73,6 +77,7 @@ public class MateriaDao {
         }
     }
 
+    @Override
     public void eliminar(int id) {
         String sql = "DELETE FROM " + TABLA + " WHERE id_materia = ?";
         Connection conn = DatabaseConexion.getConnection();

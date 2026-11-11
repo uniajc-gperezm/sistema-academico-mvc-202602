@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.uniajc.dao.EstudianteDao;
+import com.uniajc.dao.EstudianteRepositorio;
 import com.uniajc.modelo.Estudiante;
 
 /** Capa de negocio de estudiantes: validaciones de integridad. */
@@ -13,9 +13,9 @@ public class EstudianteService {
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$");
 
-    private final EstudianteDao estudianteDao;
+    private final EstudianteRepositorio estudianteDao;
 
-    public EstudianteService(EstudianteDao estudianteDao) {
+    public EstudianteService(EstudianteRepositorio estudianteDao) {
         this.estudianteDao = estudianteDao;
     }
 

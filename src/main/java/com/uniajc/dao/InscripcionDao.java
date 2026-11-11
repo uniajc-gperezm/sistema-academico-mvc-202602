@@ -13,10 +13,11 @@ import com.uniajc.db.DatabaseConexion;
 import com.uniajc.modelo.InscripcionCurso;
 
 /** DAO de inscripciones. Tabla real: inscripciones_curso (id_inscripcion, id_estudiante, id_grupo, nota_final, estado). */
-public class InscripcionDao {
+public class InscripcionDao implements InscripcionRepositorio {
 
     private static final String TABLA = "inscripciones_curso";
 
+    @Override
     public void guardar(InscripcionCurso i) {
         String sql = "INSERT INTO " + TABLA + " (id_estudiante, id_grupo, nota_final, estado) VALUES (?, ?, ?, ?)";
         Connection conn = DatabaseConexion.getConnection();
@@ -34,6 +35,7 @@ public class InscripcionDao {
         }
     }
 
+    @Override
     public List<InscripcionCurso> obtenerTodos() {
         List<InscripcionCurso> lista = new ArrayList<>();
         String sql = "SELECT id_inscripcion, id_estudiante, id_grupo, nota_final, estado FROM "
@@ -48,6 +50,7 @@ public class InscripcionDao {
         return lista;
     }
 
+    @Override
     public Optional<InscripcionCurso> buscarPorId(int id) {
         String sql = "SELECT id_inscripcion, id_estudiante, id_grupo, nota_final, estado FROM "
                 + TABLA + " WHERE id_inscripcion = ?";
@@ -63,6 +66,7 @@ public class InscripcionDao {
         return Optional.empty();
     }
 
+    @Override
     public boolean existeInscripcion(int idEstudiante, int idGrupo) {
         String sql = "SELECT 1 FROM " + TABLA + " WHERE id_estudiante = ? AND id_grupo = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -77,6 +81,7 @@ public class InscripcionDao {
         }
     }
 
+    @Override
     public void actualizar(InscripcionCurso i) {
         String sql = "UPDATE " + TABLA
                 + " SET id_estudiante = ?, id_grupo = ?, nota_final = ?, estado = ? WHERE id_inscripcion = ?";
@@ -94,6 +99,7 @@ public class InscripcionDao {
         }
     }
 
+    @Override
     public void eliminar(int id) {
         String sql = "DELETE FROM " + TABLA + " WHERE id_inscripcion = ?";
         Connection conn = DatabaseConexion.getConnection();

@@ -3,15 +3,15 @@ package com.uniajc.servicios;
 import java.util.List;
 import java.util.Optional;
 
-import com.uniajc.dao.MateriaDao;
+import com.uniajc.dao.MateriaRepositorio;
 import com.uniajc.modelo.Materia;
 
 /** Capa de negocio de materias: validaciones de integridad. */
 public class MateriaService {
 
-    private final MateriaDao materiaDao;
+    private final MateriaRepositorio materiaDao;
 
-    public MateriaService(MateriaDao materiaDao) {
+    public MateriaService(MateriaRepositorio materiaDao) {
         this.materiaDao = materiaDao;
     }
 

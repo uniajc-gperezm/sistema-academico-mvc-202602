@@ -13,10 +13,11 @@ import com.uniajc.db.DatabaseConexion;
 import com.uniajc.modelo.Estudiante;
 
 /** DAO de estudiantes. Tabla: public.estudiantes (id, name, lastname, email). */
-public class EstudianteDao {
+public class EstudianteDao implements EstudianteRepositorio {
 
     private static final String TABLA = "estudiantes";
 
+    @Override
     public void guardar(Estudiante e) {
         String sql = "INSERT INTO " + TABLA + " (name, lastname, email) VALUES (?, ?, ?)";
         Connection conn = DatabaseConexion.getConnection();
@@ -34,6 +35,7 @@ public class EstudianteDao {
         }
     }
 
+    @Override
     public List<Estudiante> obtenerTodos() {
         List<Estudiante> lista = new ArrayList<>();
         String sql = "SELECT id, name, lastname, email FROM " + TABLA + " ORDER BY id";
@@ -48,6 +50,7 @@ public class EstudianteDao {
         return lista;
     }
 
+    @Override
     public Optional<Estudiante> buscarPorId(int id) {
         String sql = "SELECT id, name, lastname, email FROM " + TABLA + " WHERE id = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -63,6 +66,7 @@ public class EstudianteDao {
         return Optional.empty();
     }
 
+    @Override
     public void actualizar(Estudiante e) {
         String sql = "UPDATE " + TABLA + " SET name = ?, lastname = ?, email = ? WHERE id = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -79,6 +83,7 @@ public class EstudianteDao {
         }
     }
 
+    @Override
     public void eliminar(int id) {
         String sql = "DELETE FROM " + TABLA + " WHERE id = ?";
         Connection conn = DatabaseConexion.getConnection();

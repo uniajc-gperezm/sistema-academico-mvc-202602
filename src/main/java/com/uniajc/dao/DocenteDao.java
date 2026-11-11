@@ -13,10 +13,11 @@ import com.uniajc.db.DatabaseConexion;
 import com.uniajc.modelo.Docente;
 
 /** DAO de docentes. Tabla real: docentes (id_docente, nombre, especialidad). */
-public class DocenteDao {
+public class DocenteDao implements DocenteRepositorio {
 
     private static final String TABLA = "docentes";
 
+    @Override
     public void guardar(Docente d) {
         String sql = "INSERT INTO " + TABLA + " (nombre, especialidad) VALUES (?, ?)";
         Connection conn = DatabaseConexion.getConnection();
@@ -32,6 +33,7 @@ public class DocenteDao {
         }
     }
 
+    @Override
     public List<Docente> obtenerTodos() {
         List<Docente> lista = new ArrayList<>();
         String sql = "SELECT id_docente, nombre, especialidad FROM " + TABLA + " ORDER BY id_docente";
@@ -45,6 +47,7 @@ public class DocenteDao {
         return lista;
     }
 
+    @Override
     public Optional<Docente> buscarPorId(int id) {
         String sql = "SELECT id_docente, nombre, especialidad FROM " + TABLA + " WHERE id_docente = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -59,6 +62,7 @@ public class DocenteDao {
         return Optional.empty();
     }
 
+    @Override
     public void actualizar(Docente d) {
         String sql = "UPDATE " + TABLA + " SET nombre = ?, especialidad = ? WHERE id_docente = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -73,6 +77,7 @@ public class DocenteDao {
         }
     }
 
+    @Override
     public void eliminar(int id) {
         String sql = "DELETE FROM " + TABLA + " WHERE id_docente = ?";
         Connection conn = DatabaseConexion.getConnection();

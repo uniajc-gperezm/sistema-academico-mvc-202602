@@ -11,11 +11,12 @@ import com.uniajc.modelo.Rol;
 import com.uniajc.modelo.Usuario;
 
 /** DAO de usuarios. Tabla: users (id, username, password, nombre, rol, activo, fecha_creacion). */
-public class UsuarioDao {
+public class UsuarioDao implements UsuarioRepositorio {
 
     private static final String TABLA = "users";
 
     /** Busca un usuario por su username. */
+    @Override
     public Optional<Usuario> buscarPorUsername(String username) {
         String sql = "SELECT id, username, password, nombre, rol, activo, fecha_creacion FROM "
                 + TABLA + " WHERE username = ?";
@@ -32,6 +33,7 @@ public class UsuarioDao {
     }
 
     /** Busca un usuario por su id. */
+    @Override
     public Optional<Usuario> buscarPorId(int id) {
         String sql = "SELECT id, username, password, nombre, rol, activo, fecha_creacion FROM "
                 + TABLA + " WHERE id = ?";
@@ -48,6 +50,7 @@ public class UsuarioDao {
     }
 
     /** Guarda un nuevo usuario. */
+    @Override
     public void guardar(Usuario u) {
         String sql = "INSERT INTO " + TABLA
                 + " (username, password, nombre, rol, activo) VALUES (?, ?, ?, ?, ?)";
@@ -65,6 +68,7 @@ public class UsuarioDao {
     }
 
     /** Actualiza la contraseña de un usuario. */
+    @Override
     public void cambiarPassword(int id, String nuevoPasswordHash) {
         String sql = "UPDATE " + TABLA + " SET password = ? WHERE id = ?";
         Connection conn = DatabaseConexion.getConnection();

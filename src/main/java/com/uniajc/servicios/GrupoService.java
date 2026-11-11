@@ -3,15 +3,15 @@ package com.uniajc.servicios;
 import java.util.List;
 import java.util.Optional;
 
-import com.uniajc.dao.GrupoDao;
+import com.uniajc.dao.GrupoRepositorio;
 import com.uniajc.modelo.Grupo;
 
 /** Capa de negocio de grupos: validaciones de integridad. */
 public class GrupoService {
 
-    private final GrupoDao grupoDao;
+    private final GrupoRepositorio grupoDao;
 
-    public GrupoService(GrupoDao grupoDao) {
+    public GrupoService(GrupoRepositorio grupoDao) {
         this.grupoDao = grupoDao;
     }
 

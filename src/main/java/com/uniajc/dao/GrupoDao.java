@@ -13,10 +13,11 @@ import com.uniajc.db.DatabaseConexion;
 import com.uniajc.modelo.Grupo;
 
 /** DAO de grupos. Tabla real: grupos (id_grupo, id_materia, id_docente, aula, horario). */
-public class GrupoDao {
+public class GrupoDao implements GrupoRepositorio {
 
     private static final String TABLA = "grupos";
 
+    @Override
     public void guardar(Grupo g) {
         String sql = "INSERT INTO " + TABLA + " (id_materia, id_docente, aula, horario) VALUES (?, ?, ?, ?)";
         Connection conn = DatabaseConexion.getConnection();
@@ -34,6 +35,7 @@ public class GrupoDao {
         }
     }
 
+    @Override
     public List<Grupo> obtenerTodos() {
         List<Grupo> lista = new ArrayList<>();
         String sql = "SELECT id_grupo, id_materia, id_docente, aula, horario FROM " + TABLA + " ORDER BY id_grupo";
@@ -47,6 +49,7 @@ public class GrupoDao {
         return lista;
     }
 
+    @Override
     public Optional<Grupo> buscarPorId(int id) {
         String sql = "SELECT id_grupo, id_materia, id_docente, aula, horario FROM " + TABLA + " WHERE id_grupo = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -61,6 +64,7 @@ public class GrupoDao {
         return Optional.empty();
     }
 
+    @Override
     public void actualizar(Grupo g) {
         String sql = "UPDATE " + TABLA + " SET id_materia = ?, id_docente = ?, aula = ?, horario = ? WHERE id_grupo = ?";
         Connection conn = DatabaseConexion.getConnection();
@@ -77,6 +81,7 @@ public class GrupoDao {
         }
     }
 
+    @Override
     public void eliminar(int id) {
         String sql = "DELETE FROM " + TABLA + " WHERE id_grupo = ?";
         Connection conn = DatabaseConexion.getConnection();

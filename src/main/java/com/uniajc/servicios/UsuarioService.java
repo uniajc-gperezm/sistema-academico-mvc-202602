@@ -2,16 +2,16 @@ package com.uniajc.servicios;
 
 import java.util.Optional;
 
-import com.uniajc.dao.UsuarioDao;
+import com.uniajc.dao.UsuarioRepositorio;
 import com.uniajc.db.EncriptacionUtil;
 import com.uniajc.modelo.Usuario;
 
 /** Capa de negocio de autenticación y usuarios. */
 public class UsuarioService {
 
-    private final UsuarioDao usuarioDao;
+    private final UsuarioRepositorio usuarioDao;
 
-    public UsuarioService(UsuarioDao usuarioDao) {
+    public UsuarioService(UsuarioRepositorio usuarioDao) {
         this.usuarioDao = usuarioDao;
     }
 

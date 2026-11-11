@@ -3,15 +3,15 @@ package com.uniajc.servicios;
 import java.util.List;
 import java.util.Optional;
 
-import com.uniajc.dao.DocenteDao;
+import com.uniajc.dao.DocenteRepositorio;
 import com.uniajc.modelo.Docente;
 
 /** Capa de negocio de docentes: validaciones de integridad. */
 public class DocenteService {
 
-    private final DocenteDao docenteDao;
+    private final DocenteRepositorio docenteDao;
 
-    public DocenteService(DocenteDao docenteDao) {
+    public DocenteService(DocenteRepositorio docenteDao) {
         this.docenteDao = docenteDao;
     }
 

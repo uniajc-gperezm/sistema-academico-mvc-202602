@@ -3,15 +3,15 @@ package com.uniajc.servicios;
 import java.util.List;
 import java.util.Optional;
 
-import com.uniajc.dao.InscripcionDao;
+import com.uniajc.dao.InscripcionRepositorio;
 import com.uniajc.modelo.InscripcionCurso;
 
 /** Capa de negocio de inscripciones: validaciones de integridad. */
 public class InscripcionService {
 
-    private final InscripcionDao inscripcionDao;
+    private final InscripcionRepositorio inscripcionDao;
 
-    public InscripcionService(InscripcionDao inscripcionDao) {
+    public InscripcionService(InscripcionRepositorio inscripcionDao) {
         this.inscripcionDao = inscripcionDao;
     }
 
