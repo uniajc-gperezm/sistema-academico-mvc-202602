@@ -159,6 +159,10 @@ public abstract class PanelCrudBase<T> extends JPanel {
         botones.add(botonEliminar);
         botones.add(botonActualizar);
 
+        for (JButton extra : botonesExtra()) {
+            botones.add(extra);
+        }
+
         JPanel paginacion = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
         paginacion.setBackground(UiUtil.SECUNDARIO);
 
@@ -278,6 +282,15 @@ public abstract class PanelCrudBase<T> extends JPanel {
 
     /** Subclase: elimina la entidad según su id. */
     protected abstract void eliminarPorEntidad(T entidad);
+
+    /**
+     * Botones adicionales que una entidad quiera mostrar junto a los CRUD.
+     * Por defecto ninguno; {@link PanelInscripcion} lo usa para invocar
+     * procedimientos almacenados.
+     */
+    protected List<JButton> botonesExtra() {
+        return new ArrayList<>();
+    }
 
     private void mostrarDialogoRegistro(boolean esEdicion) {
         modoEdicion = esEdicion;

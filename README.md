@@ -57,6 +57,10 @@ src/test/java/com/uniajc/
 ├── dao/                      # Dobles en memoria de cada repositorio
 ├── servicios/                # Pruebas unitarias de las 6 capas de servicio
 └── db/                       # Pruebas de EncriptacionUtil
+
+database/
+├── esquema.sql               # Tablas + datos iniciales
+└── procedimientos.sql        # Funciones y procedimientos almacenados
 ```
 
 ### Inversión de dependencias en la capa de persistencia
@@ -91,6 +95,19 @@ URL=jdbc:postgresql://ep-tu-proyecto-pooler.c-X.us-east-2.aws.neon.tech/neondb?s
 3. Crea las tablas ejecutando el script **`database/esquema.sql`** en el editor SQL de Neon
    (o con `mvn exec:java -Dexec.mainClass="com.uniajc.db.InicializadorBaseDatos"`).
 
+4. Crea las funciones y procedimientos almacenados con **`database/procedimientos.sql`**.
+
+   Si ya tenías las tablas creadas y solo quieres aplicar/actualizar las rutinas
+   (son `CREATE OR REPLACE`, así que se pueden re-ejecutar sin duplicar datos):
+
+   ```bash
+   mvn exec:java -Dexec.mainClass="com.uniajc.db.InicializadorBaseDatos" -Dexec.args="solo-rutinas"
+   ```
+
+   > ⚠ Ejecutar el inicializador **sin** `solo-rutinas` vuelve a correr `esquema.sql`
+   > completo. Sus `INSERT` de docentes, materias, grupos e inscripciones no tienen
+   > `ON CONFLICT`, así que duplicarían esos registros.
+
 ### Tablas creadas
 
 | Tabla | Propósito |
@@ -101,6 +118,40 @@ URL=jdbc:postgresql://ep-tu-proyecto-pooler.c-X.us-east-2.aws.neon.tech/neondb?s
 | `materias` | Materias |
 | `grupos` | Grupos (relacionan materia + docente + aula + horario) |
 | `inscripciones_curso` | Inscripciones de estudiantes a grupos con nota y estado |
+
+### Rutinas almacenadas
+
+Definidas en **`database/procedimientos.sql`** (PostgreSQL). La lógica de negocio
+—validaciones, reglas— sigue en la capa de servicio Java; lo que se delega al motor
+de base de datos es el trabajo sobre los datos.
+
+| Rutina | Tipo | Qué hace | Cómo se invoca desde Java |
+|--------|------|----------|---------------------------|
+| `fn_estado_por_nota(nota)` | Función | Traduce una nota a APROBADO / REPROBADO | `SELECT` con `PreparedStatement` |
+| `fn_promedio_grupo(id_grupo)` | Función | Promedio de notas de un grupo (0 si está vacío) | `SELECT` con `PreparedStatement` |
+| `sp_asignar_nota(id_inscripcion, nota)` | Procedimiento | Asigna la nota y recalcula el estado | `CALL` con `CallableStatement` |
+
+**Función vs. procedimiento** (la distinción que se trabajó en clase):
+
+- Una **función** solo lee, siempre retorna un valor, y se llama dentro de un `SELECT`.
+- Un **procedimiento** puede modificar datos (`UPDATE`/`INSERT`) y se invoca con `CALL`;
+  no retorna un valor, produce su efecto.
+
+Desde Java, `InscripcionDao` usa `CallableStatement`. El procedimiento se invoca con
+`CALL` explícito:
+
+```java
+private static final String SP_ASIGNAR_NOTA = "CALL public.sp_asignar_nota(?, ?)";
+```
+
+> ⚠ **No uses el escape JDBC `{call ...}`** para este procedimiento. El driver de
+> PostgreSQL lo traduce a `SELECT * FROM sp_asignar_nota(...)` (su
+> `escapeSyntaxCallMode` por defecto es `select`), y el motor responde
+> `is a procedure. Hint: To call a procedure, use CALL`.
+> Las funciones, en cambio, sí se invocan con `SELECT` como cualquier consulta.
+
+En la interfaz, el botón **“Asignar nota…”** del panel de Inscripciones usa el
+procedimiento almacenado y muestra el promedio calculado por la función.
 
 ### Usuarios de prueba (contraseñas encriptadas MD5)
 
@@ -154,11 +205,11 @@ dobles en memoria que implementan las interfaces de repositorio.
 | `DocenteServiceTest` | CRUD, validación de nombre y especialidad |
 | `MateriaServiceTest` | CRUD, rango de créditos (1–10) |
 | `GrupoServiceTest` | CRUD, materia/docente obligatorios, aula y horario |
-| `InscripcionServiceTest` | CRUD, nota 0–5, estados válidos, duplicados |
+| `InscripcionServiceTest` | CRUD, nota 0–5, estados válidos, duplicados, rutinas almacenadas |
 | `UsuarioServiceTest` | Autenticación, hash de contraseña, usuarios inactivos |
 | `EncriptacionUtilTest` | Hashes MD5/SHA-256 contra valores conocidos |
 
-Resultado actual: **90 pruebas, 0 fallos**.
+Resultado actual: **98 pruebas, 0 fallos**.
 
 ## Credenciales de acceso
 
@@ -175,6 +226,8 @@ Resultado actual: **90 pruebas, 0 fallos**.
 - Funciones genéricas reutilizables (creación de botones, paneles CRUD base).
 - Inversión de dependencias: los servicios dependen de interfaces de repositorio,
   lo que permite probarlos sin base de datos real.
+- Procedimientos y funciones almacenadas en la base de datos, invocadas desde Java
+  con `CallableStatement`; la lógica de negocio permanece en la capa de servicio.
 - Pruebas unitarias con JUnit 5 en las 6 entidades del dominio.
 - Generación de `.jar` ejecutable con Maven Shade.
 

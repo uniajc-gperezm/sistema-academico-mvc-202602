@@ -20,4 +20,27 @@ public interface InscripcionRepositorio {
     void actualizar(InscripcionCurso i);
 
     void eliminar(int id);
+
+    // ---- Rutinas almacenadas (database/procedimientos.sql) ----
+    // Estas operaciones se delegan al motor de base de datos en lugar de
+    // resolverse con SQL armado en Java.
+
+    /**
+     * Asigna la nota final de una inscripcion y recalcula su estado.
+     * En PostgreSQL ejecuta el procedimiento almacenado {@code sp_asignar_nota}
+     * (se invoca con CALL y no retorna valor: produce su efecto).
+     */
+    void asignarNota(int idInscripcion, float nota);
+
+    /**
+     * Promedio de las notas de un grupo, o 0 si aun no tiene inscripciones.
+     * En PostgreSQL invoca la funcion {@code fn_promedio_grupo} con SELECT.
+     */
+    float promedioGrupo(int idGrupo);
+
+    /**
+     * Traduce una nota numerica a su estado academico (APROBADO / REPROBADO).
+     * En PostgreSQL invoca la funcion {@code fn_estado_por_nota} con SELECT.
+     */
+    String estadoPorNota(float nota);
 }

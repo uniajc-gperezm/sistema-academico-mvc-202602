@@ -55,6 +55,44 @@ public class InscripcionService {
         inscripcionDao.eliminar(id);
     }
 
+    // ---- Operaciones delegadas a rutinas almacenadas ----
+    // La logica de negocio (validar) se queda en Java; el trabajo sobre los
+    // datos se delega al motor de base de datos (database/procedimientos.sql).
+
+    /**
+     * Asigna la nota final de una inscripcion existente.
+     * Valida en Java y delega el UPDATE al procedimiento almacenado
+     * {@code sp_asignar_nota}, que ademas recalcula el estado.
+     */
+    public void asignarNota(int idInscripcion, float nota) {
+        if (idInscripcion <= 0) {
+            throw new IllegalArgumentException("El ID de la inscripcion debe ser positivo.");
+        }
+        if (nota < 0 || nota > 5) {
+            throw new IllegalArgumentException("La nota debe estar entre 0 y 5.");
+        }
+        if (inscripcionDao.buscarPorId(idInscripcion).isEmpty()) {
+            throw new IllegalArgumentException("Inscripcion no encontrada.");
+        }
+        inscripcionDao.asignarNota(idInscripcion, nota);
+    }
+
+    /** Promedio de notas de un grupo (0 si el grupo no tiene inscripciones). */
+    public float promedioGrupo(int idGrupo) {
+        if (idGrupo <= 0) {
+            throw new IllegalArgumentException("El ID del grupo debe ser positivo.");
+        }
+        return inscripcionDao.promedioGrupo(idGrupo);
+    }
+
+    /** Estado academico que corresponde a una nota (APROBADO / REPROBADO). */
+    public String estadoPorNota(float nota) {
+        if (nota < 0 || nota > 5) {
+            throw new IllegalArgumentException("La nota debe estar entre 0 y 5.");
+        }
+        return inscripcionDao.estadoPorNota(nota);
+    }
+
     private void validarInscripcion(InscripcionCurso i) {
         if (i == null) {
             throw new IllegalArgumentException("Inscripcion no puede ser nula.");

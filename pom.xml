@@ -42,6 +42,14 @@
     </dependencies>
 
     <build>
+        <!-- Los scripts SQL viven en database/ y se empaquetan en la raiz del jar,
+             para que InicializadorBaseDatos los encuentre por classpath sin
+             mantener una copia duplicada en src/main/resources. -->
+        <resources>
+            <resource>
+                <directory>database</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -1,5 +1,6 @@
 package com.uniajc.dao;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +17,19 @@ import com.uniajc.modelo.InscripcionCurso;
 public class InscripcionDao implements InscripcionRepositorio {
 
     private static final String TABLA = "inscripciones_curso";
+
+    /**
+     * Procedimiento almacenado y funciones definidos en database/procedimientos.sql.
+     *
+     * El procedimiento se invoca con "CALL" explicito y no con el escape JDBC
+     * "{call ...}". El driver de PostgreSQL traduce ese escape a
+     * "SELECT * FROM sp_asignar_nota(...)" (modo escapeSyntaxCallMode=select por
+     * defecto) y el motor responde: "is a procedure. Hint: To call a procedure,
+     * use CALL". Verificado contra la base real.
+     */
+    private static final String SP_ASIGNAR_NOTA = "CALL public.sp_asignar_nota(?, ?)";
+    private static final String FN_PROMEDIO_GRUPO = "SELECT public.fn_promedio_grupo(?)";
+    private static final String FN_ESTADO_POR_NOTA = "SELECT public.fn_estado_por_nota(?)";
 
     @Override
     public void guardar(InscripcionCurso i) {
@@ -109,6 +123,53 @@ public class InscripcionDao implements InscripcionRepositorio {
             if (filas == 0) throw new RuntimeException("Inscripcion no encontrada con ID: " + id);
         } catch (SQLException ex) {
             throw new RuntimeException("Error eliminando inscripcion: " + ex.getMessage(), ex);
+        }
+    }
+
+    // ---- Rutinas almacenadas (database/procedimientos.sql) ----
+
+    /**
+     * Llama al procedimiento almacenado sp_asignar_nota.
+     * Se usa CallableStatement con la sintaxis JDBC {call ...}; el
+     * procedimiento no devuelve valor, su efecto es el UPDATE en la tabla.
+     */
+    @Override
+    public void asignarNota(int idInscripcion, float nota) {
+        Connection conn = DatabaseConexion.getConnection();
+        try (CallableStatement cs = conn.prepareCall(SP_ASIGNAR_NOTA)) {
+            cs.setInt(1, idInscripcion);
+            cs.setFloat(2, nota);
+            cs.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error asignando nota: " + ex.getMessage(), ex);
+        }
+    }
+
+    /** Llama a la funcion fn_promedio_grupo con SELECT (las funciones se leen, no se invocan con CALL). */
+    @Override
+    public float promedioGrupo(int idGrupo) {
+        Connection conn = DatabaseConexion.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(FN_PROMEDIO_GRUPO)) {
+            ps.setInt(1, idGrupo);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getFloat(1) : 0f;
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error calculando promedio: " + ex.getMessage(), ex);
+        }
+    }
+
+    /** Llama a la funcion fn_estado_por_nota con SELECT. */
+    @Override
+    public String estadoPorNota(float nota) {
+        Connection conn = DatabaseConexion.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(FN_ESTADO_POR_NOTA)) {
+            ps.setFloat(1, nota);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error consultando estado: " + ex.getMessage(), ex);
         }
     }
 

@@ -59,6 +59,49 @@ public class InscripcionDaoEnMemoria implements InscripcionRepositorio {
         }
     }
 
+    // ---- Rutinas almacenadas replicadas en memoria ----
+    // Reproducen el comportamiento de database/procedimientos.sql para poder
+    // probar el servicio sin conexion a PostgreSQL.
+
+    /**
+     * Equivalente a sp_asignar_nota: actualiza la nota y recalcula el estado.
+     * Una inscripcion CANCELADA conserva su estado.
+     */
+    @Override
+    public void asignarNota(int idInscripcion, float nota) {
+        if (nota < 0 || nota > 5) {
+            throw new RuntimeException("La nota debe estar entre 0 y 5 (recibida: " + nota + ")");
+        }
+        InscripcionCurso i = datos.get(idInscripcion);
+        if (i == null) {
+            throw new RuntimeException("No existe la inscripcion con ID " + idInscripcion);
+        }
+        i.setNota_final(nota);
+        if (!"CANCELADO".equals(i.getEstado())) {
+            i.setEstado(nota >= 3.0f ? "APROBADO" : "REPROBADO");
+        }
+    }
+
+    /** Equivalente a fn_promedio_grupo: 0 si el grupo no tiene inscripciones. */
+    @Override
+    public float promedioGrupo(int idGrupo) {
+        float suma = 0f;
+        int cantidad = 0;
+        for (InscripcionCurso i : datos.values()) {
+            if (i.getId_grupo() == idGrupo) {
+                suma += i.getNota_final();
+                cantidad++;
+            }
+        }
+        return cantidad == 0 ? 0f : suma / cantidad;
+    }
+
+    /** Equivalente a fn_estado_por_nota. */
+    @Override
+    public String estadoPorNota(float nota) {
+        return nota >= 3.0f ? "APROBADO" : "REPROBADO";
+    }
+
     public int contar() {
         return datos.size();
     }

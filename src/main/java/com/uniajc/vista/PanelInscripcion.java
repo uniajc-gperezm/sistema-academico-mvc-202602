@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -78,6 +79,13 @@ public class PanelInscripcion extends PanelCrudBase<InscripcionCurso> {
         String grupo = nombreGrupos.getOrDefault(i.getId_grupo(), "ID " + i.getId_grupo());
         return new Object[]{i.getId_inscripcion(), estudiante, grupo,
                 i.getNota_final(), i.getEstado()};
+    }
+
+    @Override
+    protected List<JButton> botonesExtra() {
+        JButton botonNota = UiUtil.boton("Asignar nota…", UiUtil.ACENTO);
+        botonNota.addActionListener(e -> asignarNotaConProcedimiento());
+        return java.util.List.of(botonNota);
     }
 
     @Override
@@ -234,5 +242,57 @@ public class PanelInscripcion extends PanelCrudBase<InscripcionCurso> {
             return false;
         }
         return true;
+    }
+
+    // ---- Acciones delegadas a rutinas almacenadas ----
+
+    /**
+     * Asigna la nota de la inscripción seleccionada usando el procedimiento
+     * almacenado sp_asignar_nota, que además recalcula el estado en la base
+     * de datos. Demuestra el uso de CALL desde Java.
+     */
+    private void asignarNotaConProcedimiento() {
+        InscripcionCurso seleccionada = entidadDeFilaSeleccionada();
+        if (seleccionada == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione una inscripción.", "Advertencia",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String entrada = JOptionPane.showInputDialog(this,
+                "Nueva nota para la inscripción #" + seleccionada.getId_inscripcion()
+                        + " (0 a 5):", "Asignar nota (procedimiento almacenado)",
+                JOptionPane.QUESTION_MESSAGE);
+        if (entrada == null || entrada.trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            float nota = Float.parseFloat(entrada.trim());
+            service.asignarNota(seleccionada.getId_inscripcion(), nota);
+            double promedio = service.promedioGrupo(seleccionada.getId_grupo());
+            JOptionPane.showMessageDialog(this,
+                    String.format("Nota asignada con sp_asignar_nota.%n"
+                            + "Estado recalculado en la base de datos.%n%n"
+                            + "Promedio del grupo %d (fn_promedio_grupo): %.2f",
+                            seleccionada.getId_grupo(), promedio),
+                    "Procedimiento almacenado", JOptionPane.INFORMATION_MESSAGE);
+            recargar();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "La nota debe ser un número entre 0 y 5.",
+                    "Validación", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /** Fila seleccionada en la tabla, o null si no hay selección. */
+    private InscripcionCurso entidadDeFilaSeleccionada() {
+        int fila = tabla.getSelectedRow();
+        if (fila < 0 || fila >= visibles.size()) {
+            return null;
+        }
+        return visibles.get(fila);
     }
 }
