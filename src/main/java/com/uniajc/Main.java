@@ -1,11 +1,13 @@
 package com.uniajc;
 
-import com.uniajc.db.DatabaseConexion;
+import javax.swing.SwingUtilities;
 
+import com.uniajc.vista.VistaLoginSwing;
+
+/** Punto de entrada de la aplicación. */
 public class Main {
-    public static void main(String[] args) {
-        System.out.println("Bienvenido al Sistema Académico!");
 
-        DatabaseConexion.getConnection();
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new VistaLoginSwing().setVisible(true));
     }
 }
