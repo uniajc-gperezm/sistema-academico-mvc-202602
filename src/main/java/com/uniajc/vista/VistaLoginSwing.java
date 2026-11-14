@@ -29,10 +29,13 @@ public class VistaLoginSwing extends JFrame {
     private final UsuarioService usuarioService = new UsuarioService(new UsuarioDao());
 
     public VistaLoginSwing() {
-        super("Sistema Académico UNIAJC — Inicio de sesión");
-        configurarVentana();
-        inicializarComponentes();
-    }
+    super("Sistema Académico UNIACJ – Inicio de sesión");
+    configurarVentana();
+    inicializarComponentes();
+
+    SwingUtilities.invokeLater(() ->
+            campoUsuario.requestFocusInWindow());
+}
 
     private void configurarVentana() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
