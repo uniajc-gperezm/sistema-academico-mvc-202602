@@ -1,11 +1,11 @@
 package com.uniajc;
 
-import com.uniajc.db.DatabaseConexion;
+import com.uniajc.vista.VistaAcceso;
+import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Bienvenido al Sistema Académico!");
-
-        DatabaseConexion.getConnection();
+        // Muestra el acceso primero; la conexión se solicita al abrir el módulo académico.
+        SwingUtilities.invokeLater(() -> new VistaAcceso().mostrar());
     }
 }

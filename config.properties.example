@@ -1,0 +1,5 @@
+# Copia este archivo como config.properties y reemplaza los valores de ejemplo.
+# config.properties está ignorado por Git; no publiques sus credenciales reales.
+db.url=jdbc:postgresql://HOST:5432/BASE?sslmode=require
+db.user=USUARIO
+db.password=CONTRASENA_REAL_DE_LA_BASE
