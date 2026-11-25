@@ -52,8 +52,8 @@ src/
 │       └── com/
 │           └── uniajc/
 │               ├── Main.java                    # Punto de entrada
-│               ├── config/
-│               │   └── ConexionPostgresDatabase.java
+│               ├── db/
+│               │   └── DatabaseConexion.java
 │               ├── modelo/                    # Entidades (POJOs)
 │               │   └── Estudiante.java
 │               ├── dao/                       # Data Access Object
@@ -181,7 +181,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.uniajc.config.ConexionPostgresDatabase;
+import com.uniajc.db.DatabaseConexion;
 import com.uniajc.modelo.Entidad;
 
 public class EntidadDao {
@@ -189,7 +189,7 @@ public class EntidadDao {
     public void guardar(Entidad entidad) {
         String sql = "INSERT INTO \"practica-mvc\".nombre_tabla (campo1, campo2, campo3) VALUES (?, ?, ?)";
         
-        try (Connection conn = ConexionPostgresDatabase.getConnection();
+        try (Connection conn = DatabaseConexion.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, entidad.getAtributo1());
@@ -206,7 +206,7 @@ public class EntidadDao {
         List<Entidad> lista = new ArrayList<>();
         String sql = "SELECT id, campo1, campo2, campo3 FROM \"practica-mvc\".nombre_tabla";
         
-        try (Connection conn = ConexionPostgresDatabase.getConnection();
+        try (Connection conn = DatabaseConexion.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             
@@ -222,7 +222,7 @@ public class EntidadDao {
     public Optional<Entidad> buscarPorId(int id) {
         String sql = "SELECT id, campo1, campo2, campo3 FROM \"practica-mvc\".nombre_tabla WHERE id = ?";
         
-        try (Connection conn = ConexionPostgresDatabase.getConnection();
+        try (Connection conn = DatabaseConexion.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, id);
@@ -241,7 +241,7 @@ public class EntidadDao {
     public void actualizar(Entidad entidad) {
         String sql = "UPDATE \"practica-mvc\".nombre_tabla SET campo1 = ?, campo2 = ?, campo3 = ? WHERE id = ?";
         
-        try (Connection conn = ConexionPostgresDatabase.getConnection();
+        try (Connection conn = DatabaseConexion.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, entidad.getAtributo1());
@@ -260,7 +260,7 @@ public class EntidadDao {
     public void eliminar(int id) {
         String sql = "DELETE FROM \"practica-mvc\".nombre_tabla WHERE id = ?";
         
-        try (Connection conn = ConexionPostgresDatabase.getConnection();
+        try (Connection conn = DatabaseConexion.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, id);
